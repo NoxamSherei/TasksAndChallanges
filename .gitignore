@@ -1,0 +1,8 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/CPP/WordCounter/.vs/WordCounter
+/CPP/WordCounter/WordCounter/x64/Debug
+/CPP/WordCounter/x64/Debug
