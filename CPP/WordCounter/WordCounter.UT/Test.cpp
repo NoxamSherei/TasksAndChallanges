@@ -1,7 +1,8 @@
 #include "pch.h"
-#include "..\WordCounter\UniqueWordCounterAlgoImpl.cpp"
+//todo: fix linker issiue
+#include <UniqueWordCounterAlgoImpl.cpp>
 
-class UniqueWordCounterAlgoImplTestFixture : public ::testing::Test {
+class UniqueWordAlgoTestFixture : public ::testing::Test {
 public:
     std::vector<std::string> testFilesPath = {
         "Lorem.txt",
@@ -11,52 +12,52 @@ public:
     };
 };
 
-TEST_F(UniqueWordCounterAlgoImplTestFixture, TestNam2) {
+TEST_F(UniqueWordAlgoTestFixture, CheckLoremText) {
     std::string path = testFilesPath[0];
     UniqueWordCounterAlgoImpl counter;
 
-    int uniqueWords = counter.countUniqueWordsInFile(path);
+    int _uniqueWords = counter.countUniqueWordsInFile(path);
 
-    EXPECT_EQ(uniqueWords,224);
+    EXPECT_EQ(_uniqueWords,224);
 }
 
-TEST_F(UniqueWordCounterAlgoImplTestFixture, TestName) {
+TEST_F(UniqueWordAlgoTestFixture, CheckApostrophe) {
     std::string path = testFilesPath[1];
     UniqueWordCounterAlgoImpl counter;
 
-    int uniqueWords = counter.countUniqueWordsInFile(path);
+    int _uniqueWords = counter.countUniqueWordsInFile(path);
 
-    EXPECT_EQ(uniqueWords,10);
+    EXPECT_EQ(_uniqueWords,10);
 }
 
-TEST_F(UniqueWordCounterAlgoImplTestFixture, TestName2SignleThread) {
+TEST_F(UniqueWordAlgoTestFixture, RunLongTextInSingleThread) {
     std::string path = testFilesPath[2];
     UniqueWordCounterAlgoImpl counter;
 
-    int uniqueWords = counter.countUniqueWordsInFile(path);
+    int _uniqueWords = counter.countUniqueWordsInFile(path);
 
-    EXPECT_LT(counter.lastRunnedThreads, thread::hardware_concurrency());
-    EXPECT_EQ(uniqueWords, 3001);
+    EXPECT_LT(counter.getLastCountOfThreads(), std::thread::hardware_concurrency());
+    EXPECT_EQ(_uniqueWords, 3001);
 }
 
-TEST_F(UniqueWordCounterAlgoImplTestFixture, TestName2MultipleThreads) {
+TEST_F(UniqueWordAlgoTestFixture, RunLongTextInMultipleThread) {
     std::string path = testFilesPath[2];
     UniqueWordCounterAlgoImpl counter(1);
 
-    int uniqueWords = counter.countUniqueWordsInFile(path);
+    int _uniqueWords = counter.countUniqueWordsInFile(path);
 
-    EXPECT_EQ(uniqueWords,3001);
-    EXPECT_EQ(counter.lastRunnedThreads, thread::hardware_concurrency());
+    EXPECT_EQ(_uniqueWords,3001);
+    EXPECT_EQ(counter.getLastCountOfThreads(), std::thread::hardware_concurrency());
     ASSERT_TRUE(counter.wordExist("TESTNOX"));
 }
 
-TEST_F(UniqueWordCounterAlgoImplTestFixture, TestName2LongWords) {
+TEST_F(UniqueWordAlgoTestFixture, RunLongWordsInMultipleThread) {
     std::string path = testFilesPath[3];
     UniqueWordCounterAlgoImpl counter(1);
 
-    int uniqueWords = counter.countUniqueWordsInFile(path);
+    int _uniqueWords = counter.countUniqueWordsInFile(path);
 
-    EXPECT_EQ(uniqueWords,5);
-    EXPECT_LT(counter.lastRunnedThreads, thread::hardware_concurrency());
+    EXPECT_EQ(_uniqueWords,5);
+    EXPECT_LT(counter.getLastCountOfThreads(), std::thread::hardware_concurrency());
     ASSERT_TRUE(counter.wordExist("TESTNOX"));
 }

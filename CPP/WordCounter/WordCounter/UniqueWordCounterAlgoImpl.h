@@ -8,33 +8,25 @@
 #include <string>
 #include "UniqueWordCounterAlgo.h"
 
-using std::vector;
-using std::ifstream;
-using std::unordered_set;
-using std::mutex;
-using std::lock_guard;
-using std::thread;
-using std::string;
-using std::streamsize;
-
 class UniqueWordCounterAlgoImpl:public UniqueWordCounterAlgo {
 private:
-	const int maxThreadCount;
-	const size_t blockSize;
-	mutex mutexUniqueWords;
-	unordered_set<string> uniqueWords;
-private:
-	streamsize adjustStartPosition(std::unique_ptr<ifstream>  file, streamsize start);
-	inline int getCurretnThreadDemand(streamsize fileSize);
-	void readThread(std::unique_ptr<ifstream>  file, streamsize start, streamsize end);
-public:
-	int lastRunnedThreads;
+	const int _maxThreadCount;
+	const size_t _blockSize;
+	std::mutex _mutexUniqueWords;
+	std::unordered_set<std::string> _uniqueWords;
+	int _lastRunnedThreads;
 public:
 	UniqueWordCounterAlgoImpl(size_t blockInKb = 42) :
-		blockSize(blockInKb * 1024),
-		maxThreadCount(thread::hardware_concurrency()),
-		lastRunnedThreads(0){}
+		_blockSize(blockInKb * 1024),
+		_maxThreadCount(std::thread::hardware_concurrency()),
+		_lastRunnedThreads(0){}
 	~UniqueWordCounterAlgoImpl() = default;
-	bool wordExist(string str);
-	int countUniqueWordsInFile(string file_path);
+	const int getLastCountOfThreads() const;
+	const bool wordExist(const std::string str) const;
+	const int countUniqueWordsInFile(const std::string file_path);
+private:
+	std::streamsize adjustStartPosition(std::unique_ptr<std::ifstream>  file, const  std::streamsize& start) const;
+	inline int getCurretnThreadDemand(const  std::streamsize& fileSize)  const;
+	void countUniqueWordsOnRange(std::unique_ptr<std::ifstream>  file, const std::streamsize start, const std::streamsize end);
+	inline void countUniqueWordsProcedure(const std::string& file_path, const int threadCount, const std::streamsize& fileSize, const std::streamsize& chunkSizeForThread);
 };
