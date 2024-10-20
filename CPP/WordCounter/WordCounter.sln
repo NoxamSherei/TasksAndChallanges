@@ -5,6 +5,8 @@ VisualStudioVersion = 17.9.34701.34
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WordCounter", "WordCounter\WordCounter.vcxproj", "{E26F0D2D-9747-4F8F-8138-F91D30596246}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WordCounter.UT", "WordCounter.UT\WordCounter.UT.vcxproj", "{C718523A-DDD2-4B99-A002-E0D660222084}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{E26F0D2D-9747-4F8F-8138-F91D30596246}.Release|x64.Build.0 = Release|x64
 		{E26F0D2D-9747-4F8F-8138-F91D30596246}.Release|x86.ActiveCfg = Release|Win32
 		{E26F0D2D-9747-4F8F-8138-F91D30596246}.Release|x86.Build.0 = Release|Win32
+		{C718523A-DDD2-4B99-A002-E0D660222084}.Debug|x64.ActiveCfg = Debug|x64
+		{C718523A-DDD2-4B99-A002-E0D660222084}.Debug|x64.Build.0 = Debug|x64
+		{C718523A-DDD2-4B99-A002-E0D660222084}.Debug|x86.ActiveCfg = Debug|Win32
+		{C718523A-DDD2-4B99-A002-E0D660222084}.Debug|x86.Build.0 = Debug|Win32
+		{C718523A-DDD2-4B99-A002-E0D660222084}.Release|x64.ActiveCfg = Release|x64
+		{C718523A-DDD2-4B99-A002-E0D660222084}.Release|x64.Build.0 = Release|x64
+		{C718523A-DDD2-4B99-A002-E0D660222084}.Release|x86.ActiveCfg = Release|Win32
+		{C718523A-DDD2-4B99-A002-E0D660222084}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

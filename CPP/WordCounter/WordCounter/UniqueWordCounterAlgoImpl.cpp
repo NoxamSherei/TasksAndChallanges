@@ -1,63 +1,76 @@
-#include <vector>
-#include <sstream>
-#include <fstream>
-#include <iostream>
-#include <thread>
-
 #include "UniqueWordCounterAlgoImpl.h"
 
-using std::vector;
-using std::ifstream;
-using std::istringstream;
-using std::thread;
-using std::exception;
-using std::cerr;
-using std::cout;
-using std::endl;
+bool UniqueWordCounterAlgoImpl::wordExist(string str) {
+	return uniqueWords.find(str) != uniqueWords.end();
+}
 
-void UniqueWordCounterAlgoImpl::countUniqueWordsInLine(string line) {
-	unordered_set<string> uniqueWordsInLine;
-	istringstream sstream(line);
-	string word;
-
-	while (sstream >> word) {
-		uniqueWordsInLine.insert(word);
+streamsize UniqueWordCounterAlgoImpl::adjustStartPosition(std::unique_ptr<ifstream>  file, streamsize start) {
+	file->seekg(start);
+	char current;
+	while (file->get(current)) {
+		if (current == ' ' || current == '\n') {
+			return file->tellg();
+		}
 	}
+	return start;
+}
 
-	lock_guard<mutex> lock(mutex_uniqueWords);
-	uniqueWords.insert(uniqueWordsInLine.begin(), uniqueWordsInLine.end());
+inline int UniqueWordCounterAlgoImpl::getCurretnThreadDemand(streamsize fileSize) {
+	return std::max(1, std::min(static_cast<int>(fileSize / blockSize), maxThreadCount));
 }
 
 int UniqueWordCounterAlgoImpl::countUniqueWordsInFile(string file_path) {
-	ifstream file(file_path);
+	uniqueWords.clear();
+	ifstream file(file_path, std::ios::binary | std::ios::ate);
 	if (!file) {
-		cerr << "Missing file:" << file_path << endl;
+		std::cerr << "Missing file:" << file_path << std::endl;
 		return -1;
 	}
+	streamsize fileSize = file.tellg();
+	file.close();
+	int threadCount = getCurretnThreadDemand(fileSize);
+	streamsize chunkSizeForThread = fileSize / threadCount;
 
-	try {
-		string line;
-		vector<thread> threads;
-		while (getline(file, line)) {
-			if (line.empty()) {
+	vector<thread> threads;
+	streamsize start = 0;
+	for (int i = 0; i < threadCount; ++i) {
+		streamsize end = (i == threadCount - 1) ? fileSize :
+			adjustStartPosition(std::move(std::make_unique<ifstream>(file_path)), start + chunkSizeForThread);
+
+		threads.emplace_back(&UniqueWordCounterAlgoImpl::readThread, this, std::move(std::make_unique<ifstream>(file_path)), start, end);
+		start = end;
+
+		if (end >= fileSize) {
+			break;
+		}
+	}
+	lastRunnedThreads = threads.size();
+	for (auto& singleThread : threads) {
+		singleThread.join();
+	}
+	return uniqueWords.size();
+}
+
+void UniqueWordCounterAlgoImpl::readThread(std::unique_ptr<ifstream>  file, streamsize start, streamsize end) {
+	unordered_set<string> uniqueWordsInLine;
+	string word = "";
+	char current;
+	file->seekg(start);
+	while (file->get(current) && file->tellg() <= end) {
+		if (!std::isalpha(current) && current != '\'') {
+			if (word.empty()) {
 				continue;
 			}
-			threads.emplace_back(&UniqueWordCounterAlgoImpl::countUniqueWordsInLine, this, line);
+			uniqueWordsInLine.insert(word);
+			word.clear();
+			continue;
 		}
-		file.close();
-
-		for (auto& singleThread : threads) {
-			singleThread.join();
-		}
-		return uniqueWords.size();
+		word += current;
 	}
-	catch (exception e) {
-		cout << e.what() << endl;
+	if (!word.empty()) {
+		uniqueWordsInLine.insert(word);
 	}
-
-	if (file.is_open()) {
-		file.close();
-	}
-
-	return 0;
+	lock_guard<mutex> lock(mutexUniqueWords);
+	uniqueWords.insert(uniqueWordsInLine.begin(), uniqueWordsInLine.end());
+	file->close();
 }
